@@ -1,22 +1,19 @@
-# Final Project (UNPAM)
+# Karoseri Component Damage Classification
 
-This is a FastAPI project for the final project assignment.
-
-## Prerequisites
-- **Python 3.13** (Important: Version 3.14 is currently not fully supported by `pydantic-core`)
+This is a FastAPI project for the final project of Pamulang University (UNPAM)
 
 ## Installation Guide
 
 1. **Clone this repository** (if using Git):
     ```bash
-    git clone <repository-url>
-    cd final-project
+    git clone https://github.com/aaldiiieee/karoseri-component-damage-classification.git
+    cd karoseri-component-damage-classification
     ```
 
 2. **Create a Virtual Environment (VENV)**:
-   Ensure you are using Python 3.13.
+   Ensure you are using Python 3
    ```bash
-   python3.13 -m venv .venv
+   python3 -m venv .venv
    ```
 
 3. **Activate the Virtual Environment**:
@@ -37,17 +34,18 @@ This is a FastAPI project for the final project assignment.
 
 ## Running the Application
 
-Start the server using the FastAPI CLI (development mode):
+Start the server using uvicorn (development mode):
 
 ```bash
-fastapi dev main.py
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Or using uvicorn (production mode):
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 Once running, you can access:
 - **Application**: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 - **API Documentation (Swagger)**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-
-## Troubleshooting
-
-### `subprocess-exited-with-error` during `pydantic-core` installation
-This usually occurs because you are using **Python 3.14**. Please ensure you are using **Python 3.13** as specified in the prerequisites section.
