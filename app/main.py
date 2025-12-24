@@ -9,7 +9,7 @@ from fastapi.concurrency import asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle management untuk FastAPI."""
     # Startup
-    logger = setup_logging(log_level="DEBUG")
+    logger = setup_logging(log_level="INFO")
     logger.info("=" * 50)
     logger.info("Application starting up...")
     logger.info("=" * 50 + "\n")
@@ -23,10 +23,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="FastAPI with Logging",
-    description="FastAPI application dengan sistem logging ke folder logs",
+    title="Karoseri Component Damage Classification",
+    description = 
+        "A Karoseri Component Damage Classification API for PT. Sukses Tunggal Mandiri using FastAPI \n"
+        "### Features\n"
+        "- **User Management System**: Manage user accounts, roles, and permissions\n"
+        "### Timezone\n"
+        "All timestamps are in Asia/Jakarta timezone (UTC+7).\n",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 app.add_middleware(LoggingMiddleware)

@@ -19,6 +19,10 @@ sys.path.append(os.getcwd())
 from app.configs.db import Base
 # Import models to ensure they are registered in Base.metadata
 from app.models.users import User
+from app.models.component import Component
+from app.models.damage_record import DamageRecord
+from app.models.model_metrics import ModelMetrics
+from app.models.prediction_history import PredictionHistory
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

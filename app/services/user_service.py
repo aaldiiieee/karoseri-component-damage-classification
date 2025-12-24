@@ -4,27 +4,31 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from ..models.users import User
 from ..schemas.user import UserCreate, UserUpdate
+from ..configs.security import get_password_hash
 import logging
 
 logger = logging.getLogger("app")
 
 class UserService:
     async def create_user(self, db: AsyncSession, user_in: UserCreate) -> User:
-        logger.info("Creating user: %s", user_in)
+        logger.info("Creating user...")
+
+        hashed_password = get_password_hash(user_in.password)
+
         user = User(
             username=user_in.username,
-            password=user_in.password, # TODO: Password should be hashed in real application
+            password=hashed_password,
             role=user_in.role,
             is_active=user_in.is_active
         )
         db.add(user)
         await db.commit()
         await db.refresh(user)
-        logger.info("User created: %s", user)
+        logger.info("User created")
         return user
 
     async def get_user(self, db: AsyncSession, user_id: UUID) -> Optional[User]:
-        logger.info("Getting user: %s", user_id)
+        logger.info("Getting user")
         result = await db.execute(select(User).where(User.id == user_id))
         return result.scalars().first()
 
@@ -46,9 +50,11 @@ class UserService:
             
         await db.commit()
         await db.refresh(user)
+        logger.info("User updated")
         return user
 
     async def delete_user(self, db: AsyncSession, user_id: UUID) -> bool:
+        logger.info("Deleting user")
         result = await db.execute(select(User).where(User.id == user_id))
         user = result.scalars().first()
         
@@ -57,6 +63,7 @@ class UserService:
             
         await db.delete(user)
         await db.commit()
+        logger.info("User deleted")
         return True
 
 user_service = UserService()
