@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from .routers import router
 from .configs.logging import setup_logging
 from .configs.logging_middleware import LoggingMiddleware
+from .configs.cors_config import app as cors_app
 from fastapi.concurrency import asynccontextmanager
 
 # Setup lifespan
@@ -36,6 +37,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(cors_app)
 app.add_middleware(LoggingMiddleware)
 
 app.include_router(router)
