@@ -1,5 +1,7 @@
+from datetime import datetime
 from typing import Optional
-from pydantic import Field, BaseModel 
+from uuid import UUID
+from pydantic import Field, BaseModel, ConfigDict
 
 class ClassMetrics(BaseModel):
     """Schema for metrics per class."""
@@ -38,6 +40,9 @@ class TrainingResult(BaseModel):
 
 class ModelMetricsResponse(BaseModel):
     """Response schema for ModelMetrics."""
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
     training_samples: int
     accuracy: float
     precision: float
@@ -46,6 +51,8 @@ class ModelMetricsResponse(BaseModel):
     classification_report: dict
     confusion_matrix: list[list[int]]
     notes: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
 
 
 class ModelMetricsList(BaseModel):

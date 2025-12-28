@@ -75,11 +75,11 @@ class ComponentService:
             search_filter = f"%{search}%"
             query = query.where(
                 (Component.code.ilike(search_filter)) |
-                (Component.component_name.ilike(search_filter))
+                (Component.name.ilike(search_filter))
             )
             count_query = count_query.where(
                 (Component.code.ilike(search_filter)) |
-                (Component.component_name.ilike(search_filter))
+                (Component.name.ilike(search_filter))
             )
         
         # Get total count
@@ -88,8 +88,7 @@ class ComponentService:
         
         # Apply pagination
         offset = (page - 1) * size
-        # query = query.order_by(Component.created_at.desc()).offset(offset).limit(size)
-        query = query.offset(offset).limit(size)
+        query = query.order_by(Component.created_at.desc()).offset(offset).limit(size)
         
         result = await db.execute(query)
         items = result.scalars().all()

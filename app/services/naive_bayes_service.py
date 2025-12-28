@@ -30,7 +30,7 @@ class NaiveBayesService:
     """
     
     # Class labels
-    CLASSES = ["Ringan", "Sedang", "Berat"]
+    CLASSES = ["ringan", "sedang", "berat"]
     
     # Feature names for reference
     FEATURE_NAMES = [
@@ -191,9 +191,9 @@ class NaiveBayesService:
             "predicted_level": prediction,
             "confidence": confidence,
             "probabilities": {
-                "ringan": prob_dict.get("Ringan", 0.0),
-                "sedang": prob_dict.get("Sedang", 0.0),
-                "berat": prob_dict.get("Berat", 0.0)
+                "ringan": prob_dict.get("ringan", 0.0),
+                "sedang": prob_dict.get("sedang", 0.0),
+                "berat": prob_dict.get("berat", 0.0)
             }
         }
     

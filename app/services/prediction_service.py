@@ -145,7 +145,7 @@ class PredictionService:
         result = await db.execute(
             select(PredictionHistory)
             .options(selectinload(PredictionHistory.component))
-            # .order_by(PredictionHistory.created_at.desc())
+            .order_by(PredictionHistory.created_at.desc())
             .limit(limit)
         )
         return list(result.scalars().all())

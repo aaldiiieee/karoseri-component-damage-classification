@@ -67,7 +67,7 @@ class ModelMetricsService:
         """Get the latest model metrics."""
         result = await db.execute(
             select(ModelMetrics)
-            # .order_by(ModelMetrics.created_at.desc())
+            .order_by(ModelMetrics.created_at.desc())
             .limit(1)
         )
         return result.scalars().first()

@@ -1,10 +1,13 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from pydantic import Field, field_validator, BaseModel 
+from pydantic import Field, field_validator, BaseModel, ConfigDict
 from .component import ComponentResponse
 
 class DamageFeatures(BaseModel):
     """Schema for 7 Naive Bayes input features."""
+    model_config = ConfigDict(from_attributes=True)
+    
     damage_area: float = Field(..., gt=0, description="Damage area in cm²", examples=[5.5])
     damage_depth: float = Field(..., gt=0, description="Damage depth in mm", examples=[1.2])
     damage_point_count: int = Field(..., gt=0, description="Number of damage points", examples=[3])
@@ -17,13 +20,15 @@ class DamageFeatures(BaseModel):
 class DamageRecordBase(DamageFeatures):
     """Base schema for DamageRecord."""
     component_id: UUID
-    damage_level: str = Field(..., pattern="^(Ringan|Sedang|Berat)$", examples=["Ringan"])
+    damage_level: str = Field(..., examples=["ringan"])
     notes: Optional[str] = None
 
-    @field_validator("damage_level")
+    @field_validator("damage_level", mode="before")
     @classmethod
     def validate_damage_level(cls, v: str) -> str:
-        allowed = ["Ringan", "Sedang", "Berat"]
+        if isinstance(v, str):
+            v = v.lower()
+        allowed = ["ringan", "sedang", "berat"]
         if v not in allowed:
             raise ValueError(f"damage_level must be one of: {allowed}")
         return v
@@ -44,13 +49,27 @@ class DamageRecordUpdate(BaseModel):
     usage_frequency: Optional[int] = Field(None, ge=1, le=10)
     corrosion_level: Optional[int] = Field(None, ge=1, le=5)
     deformation: Optional[float] = Field(None, ge=0)
-    damage_level: Optional[str] = Field(None, pattern="^(Ringan|Sedang|Berat)$")
+    damage_level: Optional[str] = None
     notes: Optional[str] = None
+
+    @field_validator("damage_level", mode="before")
+    @classmethod
+    def validate_damage_level(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        v = v.lower()
+        allowed = ["ringan", "sedang", "berat"]
+        if v not in allowed:
+            raise ValueError(f"damage_level must be one of: {allowed}")
+        return v
 
 
 class DamageRecordResponse(DamageRecordBase):
     """Response schema for DamageRecord."""
+    id: UUID
     component: Optional[ComponentResponse] = None
+    created_at: datetime
+    updated_at: datetime
 
 
 class DamageRecordList(BaseModel):

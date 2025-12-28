@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Integer, Text, Enum, ForeignKey, UUID
+from sqlalchemy import Column, String, Float, Integer, Text, Enum, ForeignKey, UUID, DateTime, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from app.configs.db import Base
@@ -36,6 +36,8 @@ class PredictionHistory(Base):
 
     # Notes
     notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationship
     component = relationship("Component", back_populates="prediction_histories")

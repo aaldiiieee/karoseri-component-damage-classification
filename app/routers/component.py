@@ -86,12 +86,12 @@ async def update_component(
 ):
     """Update a component."""
     # Check if new code already exists (if updating code)
-    if data.component_code:
-        existing = await component_service.get_by_code(db, data.component_code)
+    if data.code:
+        existing = await component_service.get_by_code(db, data.code)
         if existing and existing.id != component_id:
             raise HTTPException(
                 status_code=400,
-                detail=f"Component with code '{data.component_code}' already exists"
+                detail=f"Component with code '{data.code}' already exists"
             )
     
     component = await component_service.update(db, component_id, data)

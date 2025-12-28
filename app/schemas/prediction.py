@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from pydantic import Field, BaseModel
+from pydantic import Field, BaseModel, ConfigDict
 from .damage_record import DamageFeatures
 from .component import ComponentResponse
 
@@ -19,7 +20,7 @@ class PredictionProbabilities(BaseModel):
 
 class PredictionResult(BaseModel):
     """Schema for prediction result."""
-    predicted_level: str  # Ringan, Sedang, Berat
+    predicted_level: str  # ringan, sedang, berat
     confidence: float = Field(..., ge=0, le=1)
     probabilities: PredictionProbabilities
     features_used: DamageFeatures
@@ -27,9 +28,12 @@ class PredictionResult(BaseModel):
 
 class PredictionResponse(PredictionResult):
     """Response schema for saved prediction."""
+    id: UUID
     component_id: UUID
     component: Optional[ComponentResponse] = None
     notes: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
 
 
 class PredictionHistoryList(BaseModel):

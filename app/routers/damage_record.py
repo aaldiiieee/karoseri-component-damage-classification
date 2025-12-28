@@ -42,16 +42,18 @@ async def get_damage_records(
     page: int = Query(1, ge=1, description="Page number"),
     size: int = Query(10, ge=1, le=100, description="Items per page"),
     component_id: Optional[UUID] = Query(None, description="Filter by component"),
-    damage_level: Optional[str] = Query(None, description="Filter by damage level (Ringan/Sedang/Berat)"),
+    damage_level: Optional[str] = Query(None, description="Filter by damage level (ringan/sedang/berat)"),
     db: AsyncSession = Depends(get_db)
 ):
     """Get all damage records with pagination and filters."""
     # Validate damage_level
-    if damage_level and damage_level not in ["Ringan", "Sedang", "Berat"]:
-        raise HTTPException(
-            status_code=400,
-            detail="damage_level must be one of: Ringan, Sedang, Berat"
-        )
+    if damage_level:
+        damage_level = damage_level.lower()
+        if damage_level not in ["ringan", "sedang", "berat"]:
+            raise HTTPException(
+                status_code=400,
+                detail="damage_level must be one of: ringan, sedang, berat"
+            )
     
     items, total = await damage_record_service.get_all(
         db, page=page, size=size, component_id=component_id, damage_level=damage_level

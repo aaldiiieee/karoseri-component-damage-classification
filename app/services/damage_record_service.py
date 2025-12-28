@@ -145,11 +145,11 @@ class DamageRecordService:
         distribution = {"ringan": 0, "sedang": 0, "berat": 0, "total": 0}
         
         for level, count in result.fetchall():
-            if level == DamageLevel.RINGAN:
+            if level == DamageLevel.ringan:
                 distribution["ringan"] = count
-            elif level == DamageLevel.SEDANG:
+            elif level == DamageLevel.sedang:
                 distribution["sedang"] = count
-            elif level == DamageLevel.BERAT:
+            elif level == DamageLevel.berat:
                 distribution["berat"] = count
             distribution["total"] += count
         

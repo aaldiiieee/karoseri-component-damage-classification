@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Integer, Text, Enum, ForeignKey, UUID
+from sqlalchemy import Column, String, Float, Integer, Text, Enum, ForeignKey, UUID, DateTime, func
 from sqlalchemy.orm import relationship
 from app.configs.db import Base
 import enum
@@ -46,6 +46,8 @@ class DamageRecord(Base):
 
     # Additional notes
     notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationship
     component = relationship("Component", back_populates="damage_records")

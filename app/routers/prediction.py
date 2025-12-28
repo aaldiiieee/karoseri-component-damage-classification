@@ -78,11 +78,13 @@ async def get_prediction_history(
 ):
     """Get prediction history with pagination and filters."""
     # Validate predicted_level
-    if predicted_level and predicted_level not in ["Ringan", "Sedang", "Berat"]:
-        raise HTTPException(
-            status_code=400,
-            detail="predicted_level must be one of: Ringan, Sedang, Berat"
-        )
+    if predicted_level:
+        predicted_level = predicted_level.lower()
+        if predicted_level not in ["ringan", "sedang", "berat"]:
+            raise HTTPException(
+                status_code=400,
+                detail="predicted_level must be one of: ringan, sedang, berat"
+            )
     
     items, total = await prediction_service.get_history(
         db, page=page, size=size, component_id=component_id, predicted_level=predicted_level
