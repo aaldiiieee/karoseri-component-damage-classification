@@ -8,6 +8,7 @@ class RoleEnum(enum.Enum):
     admin = "admin"
     user = "user"
 
+
 class User(Base):
     __tablename__ = "users"
 

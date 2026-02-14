@@ -9,9 +9,11 @@ class UserBase(BaseModel):
     role: Optional[str] = "user"
     is_active: Optional[bool] = True
 
+
 # Create request
 class UserCreate(UserBase):
     password: str
+
 
 # Update request - all fields optional
 class UserUpdate(BaseModel):
@@ -19,6 +21,7 @@ class UserUpdate(BaseModel):
     password: Optional[str] = None
     role: Optional[str] = None
     is_active: Optional[bool] = None
+
 
 # Response - exclude password
 class UserResponse(UserBase):
@@ -28,6 +31,7 @@ class UserResponse(UserBase):
 
     class Config:
         from_attributes = True
+
 
 # Full model (internal use)
 class User(UserResponse):

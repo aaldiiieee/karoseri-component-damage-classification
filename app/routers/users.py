@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..schemas.user import UserCreate, UserUpdate, UserResponse
 from ..services.user_service import user_service
 from ..configs.db import get_db
+from ..configs.security import get_current_user
 import logging
 
 router = APIRouter(
@@ -21,7 +22,7 @@ logger = logging.getLogger("app")
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def create_user(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
+async def create_user(user_in: UserCreate, db: AsyncSession = Depends(get_current_user)):
     """Create a new user."""
     return await user_service.create_user(db, user_in)
 

@@ -13,6 +13,11 @@ class UserService:
     async def create_user(self, db: AsyncSession, user_in: UserCreate) -> User:
         logger.info("Creating user...")
 
+        existing_user = await db.execute(select(User).where(User.username == user_in.username))
+        if existing_user.scalars().first():
+            logger.warning("User creation failed: Username already exists")
+            raise ValueError("Username already exists")
+
         hashed_password = get_password_hash(user_in.password)
 
         user = User(
@@ -26,6 +31,7 @@ class UserService:
         await db.refresh(user)
         logger.info("User created")
         return user
+    
 
     async def get_user(self, db: AsyncSession, user_id: UUID) -> Optional[User]:
         logger.info("Getting user")
