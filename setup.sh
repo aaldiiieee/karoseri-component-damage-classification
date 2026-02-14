@@ -19,10 +19,10 @@ source .venv/bin/activate
 
 # 3. Install/Upgrade Dependencies
 echo "Upgrading pip..."
-pip install --upgrade pip
+pip3 install --upgrade pip
 
 echo "Installing dependencies from requirements.txt..."
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 echo "✅ Setup completed successfully!"
 echo "You can now run the application using ./run.sh"

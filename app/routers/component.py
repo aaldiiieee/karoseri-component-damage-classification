@@ -3,7 +3,6 @@ from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.configs.db import get_db
 from ..schemas import (
     ComponentCreate,

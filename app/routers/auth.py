@@ -20,7 +20,7 @@ router = APIRouter(
 logger = logging.getLogger("app")
 
 
-@router.post("/", response_model=AuthLoginResponse, status_code=status.HTTP_200_OK)
+@router.post("/login", response_model=AuthLoginResponse, status_code=status.HTTP_200_OK)
 async def login(auth_data: AuthLoginRequest, db: AsyncSession = Depends(get_db)):
     """Authenticate a user and return authentication response."""
     auth_response = await auth_service.login(db, auth_data)

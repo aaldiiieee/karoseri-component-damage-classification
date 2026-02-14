@@ -24,11 +24,11 @@ MODE=${1:-"--dev"}
 case $MODE in
     --dev)
         echo "🚀 Starting server in DEVELOPMENT mode..."
-        uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+        python3 -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
         ;;
     --prod)
         echo "🚀 Starting server in PRODUCTION mode..."
-        uvicorn app.main:app --host 0.0.0.0 --port 8000
+        python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
         ;;
     --help)
         show_help

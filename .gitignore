@@ -3,3 +3,4 @@
 init_db_postgre.sql
 __pycache__
 logs/
+.DS_Store
