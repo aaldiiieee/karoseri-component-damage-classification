@@ -38,6 +38,11 @@ class UserService:
         result = await db.execute(select(User).where(User.id == user_id))
         return result.scalars().first()
 
+    async def get_by_username(self, db: AsyncSession, username: str) -> Optional[User]:
+        logger.info(f"Getting user by username: {username}")
+        result = await db.execute(select(User).where(User.username == username))
+        return result.scalars().first()
+
     async def get_users(self, db: AsyncSession) -> List[User]:
         logger.info("Getting users")
         result = await db.execute(select(User))

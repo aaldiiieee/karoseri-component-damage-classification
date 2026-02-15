@@ -42,5 +42,18 @@ class PredictionHistory(Base):
     # Relationship
     component = relationship("Component", back_populates="prediction_histories")
 
+    @property
+    def features_used(self) -> dict:
+        """Return features as a dictionary for schema compatibility."""
+        return {
+            "damage_area": self.damage_area,
+            "damage_depth": self.damage_depth,
+            "damage_point_count": self.damage_point_count,
+            "component_age": self.component_age,
+            "usage_frequency": self.usage_frequency,
+            "corrosion_level": self.corrosion_level,
+            "deformation": self.deformation
+        }
+
     def __repr__(self):
         return f"<PredictionHistory {self.id}: {self.predicted_level.value} ({self.confidence:.2%})>"

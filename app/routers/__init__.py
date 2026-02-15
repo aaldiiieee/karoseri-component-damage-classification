@@ -4,6 +4,7 @@ from .component import router as component_router
 from .damage_record import router as damage_record_router
 from .dashboard import router as dashboard_router
 from .auth import router as auth_router
+from .prediction import router as prediction_router
 
 router = APIRouter()
 router.include_router(auth_router)
@@ -11,3 +12,4 @@ router.include_router(users_router)
 router.include_router(component_router)
 router.include_router(damage_record_router)
 router.include_router(dashboard_router)
+router.include_router(prediction_router)

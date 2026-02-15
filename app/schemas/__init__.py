@@ -4,3 +4,4 @@ from .damage_record import DamageRecordCreate, DamageRecordUpdate, DamageRecordR
 from .prediction import PredictionRequest, PredictionResult, PredictionResponse, PredictionHistoryList, ModelStatus
 from .dashboard import DashboardStats
 from .auth import AuthLoginRequest, AuthLoginResponse
+from .model_metrics import TrainingRequest, TrainingResult, ModelMetricsResponse, ModelMetricsList

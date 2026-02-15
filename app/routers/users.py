@@ -33,6 +33,18 @@ async def read_users(db: AsyncSession = Depends(get_db)):
     return await user_service.get_users(db)
 
 
+@router.get("/me", response_model=UserResponse)
+async def read_user_me(db: AsyncSession = Depends(get_db), username: str = Depends(get_current_user)):
+    """Get current user."""
+    if not username:
+        raise HTTPException(status_code=401, detail="Could not validate credentials")
+    
+    user = await user_service.get_by_username(db, username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
 @router.get("/{user_id}", response_model=UserResponse)
 async def read_user(user_id: UUID, db: AsyncSession = Depends(get_db)):
     """Read a user by ID."""

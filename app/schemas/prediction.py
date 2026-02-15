@@ -28,6 +28,8 @@ class PredictionResult(BaseModel):
 
 class PredictionResponse(PredictionResult):
     """Response schema for saved prediction."""
+    model_config = ConfigDict(from_attributes=True)
+    
     id: UUID
     component_id: UUID
     component: Optional[ComponentResponse] = None
