@@ -76,6 +76,75 @@ async def get_damage_distribution(db: AsyncSession = Depends(get_db)):
     return await damage_record_service.get_distribution(db)
 
 
+@router.get("/import-template")
+async def download_import_template():
+    """Download an Excel template for bulk importing damage records."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from fastapi.responses import StreamingResponse
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Template Data Kerusakan"
+    
+    headers = [
+        "component_code", "damage_area", "damage_depth", "damage_point_count",
+        "component_age", "usage_frequency", "corrosion_level", "deformation",
+        "damage_level", "notes"
+    ]
+    
+    # Header style
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    header_fill = PatternFill(start_color="4F46E5", end_color="4F46E5", fill_type="solid")
+    header_align = Alignment(horizontal="center", vertical="center")
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"), 
+        top=Side(style="thin"),
+        bottom=Side(style="thin")
+    )
+    
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_align
+        cell.border = thin_border
+    
+    # Example rows
+    examples = [
+        ["KRS-001", 2.5, 0.5, 2, 6, 3, 1, 0.3, "ringan", "Kerusakan ringan"],
+        ["KRS-001", 15.0, 3.0, 5, 24, 7, 3, 2.5, "sedang", "Kerusakan sedang"],
+        ["KRS-001", 35.0, 7.0, 10, 48, 9, 5, 6.0, "berat", "Kerusakan berat"],
+    ]
+    
+    for row_idx, example in enumerate(examples, 2):
+        for col_idx, value in enumerate(example, 1):
+            cell = ws.cell(row=row_idx, column=col_idx, value=value)
+            cell.border = thin_border
+    
+    # Auto-width columns
+    for col in ws.columns:
+        max_length = 0
+        for cell in col:
+            if cell.value:
+                max_length = max(max_length, len(str(cell.value)))
+        ws.column_dimensions[col[0].column_letter].width = max_length + 4
+    
+    # Save to bytes
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
+    return StreamingResponse(
+        output,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": "attachment; filename=template_data_kerusakan.xlsx"
+        }
+    )
+
+
 @router.get("/{record_id}", response_model=DamageRecordResponse)
 async def get_damage_record(
     record_id: UUID,
@@ -121,33 +190,74 @@ async def delete_damage_record(
 
 @router.post("/bulk-import", response_model=BulkImportResult)
 async def bulk_import_damage_records(
-    file: UploadFile = File(..., description="CSV file with damage records"),
+    file: UploadFile = File(..., description="Excel (.xlsx) or CSV file with damage records"),
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Bulk import damage records from CSV file.
+    Bulk import damage records from Excel (.xlsx) or CSV file.
     
-    CSV format:
-    component_code,damage_area,damage_depth,damage_point_count,component_age,usage_frequency,corrosion_level,deformation,damage_level,notes
+    Expected columns:
+    component_code, damage_area, damage_depth, damage_point_count, 
+    component_age, usage_frequency, corrosion_level, deformation, damage_level, notes
     """
-    if not file.filename.endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Only CSV files are supported")
+    filename = file.filename.lower()
+    
+    if not (filename.endswith(".csv") or filename.endswith(".xlsx")):
+        raise HTTPException(
+            status_code=400, 
+            detail="Format file tidak didukung. Gunakan file .xlsx atau .csv"
+        )
     
     content = await file.read()
-    decoded = content.decode("utf-8")
-    reader = csv.DictReader(io.StringIO(decoded))
+    rows = []
+    
+    if filename.endswith(".xlsx"):
+        # Parse Excel file with openpyxl
+        try:
+            from openpyxl import load_workbook
+            wb = load_workbook(io.BytesIO(content), read_only=True)
+            ws = wb.active
+            
+            # Get headers from first row
+            headers = []
+            for cell in next(ws.iter_rows(min_row=1, max_row=1)):
+                headers.append(str(cell.value).strip().lower() if cell.value else "")
+            
+            # Parse data rows
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if all(v is None for v in row):
+                    continue  # Skip empty rows
+                row_dict = {}
+                for idx, header in enumerate(headers):
+                    if idx < len(row):
+                        row_dict[header] = row[idx]
+                    else:
+                        row_dict[header] = None
+                rows.append(row_dict)
+            
+            wb.close()
+        except Exception as e:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Gagal membaca file Excel: {str(e)}"
+            )
+    else:
+        # Parse CSV file
+        decoded = content.decode("utf-8")
+        reader = csv.DictReader(io.StringIO(decoded))
+        rows = list(reader)
     
     records = []
     errors = []
     
-    for i, row in enumerate(reader, start=2):  # Start at 2 (1 for header)
+    for i, row in enumerate(rows, start=2):  # Start at 2 (1 for header)
         try:
             # Get component by code
-            component_code = row.get("component_code", "").strip()
+            component_code = str(row.get("component_code", "")).strip()
             component = await component_service.get_by_code(db, component_code)
             
             if not component:
-                errors.append(f"Row {i}: Component '{component_code}' not found")
+                errors.append(f"Baris {i}: Komponen '{component_code}' tidak ditemukan")
                 continue
             
             record_data = DamageRecordCreate(
@@ -159,12 +269,12 @@ async def bulk_import_damage_records(
                 usage_frequency=int(row["usage_frequency"]),
                 corrosion_level=int(row["corrosion_level"]),
                 deformation=float(row["deformation"]),
-                damage_level=row["damage_level"].strip(),
-                notes=row.get("notes", "").strip() or None
+                damage_level=str(row["damage_level"]).strip(),
+                notes=str(row.get("notes", "")).strip() or None
             )
             records.append(record_data)
         except Exception as e:
-            errors.append(f"Row {i}: {str(e)}")
+            errors.append(f"Baris {i}: {str(e)}")
     
     # Bulk create valid records
     if records:

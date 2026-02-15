@@ -144,5 +144,35 @@ class ComponentService:
         )
         return [row[0] for row in result.fetchall()]
 
+    async def bulk_create(
+        self, db: AsyncSession, items: list[ComponentCreate]
+    ) -> tuple[int, int, list[str]]:
+        """Bulk create components. Returns (success_count, error_count, errors)."""
+        success = 0
+        errors: list[str] = []
+
+        for i, data in enumerate(items, start=1):
+            try:
+                existing = await self.get_by_code(db, data.code)
+                if existing:
+                    errors.append(f"Komponen '{data.code}' sudah ada, dilewati")
+                    continue
+
+                component = Component(
+                    code=data.code,
+                    name=data.name,
+                    category=data.category,
+                    description=data.description,
+                )
+                db.add(component)
+                success += 1
+            except Exception as e:
+                errors.append(f"Baris {i}: {str(e)}")
+
+        if success > 0:
+            await db.commit()
+
+        return success, len(errors), errors
+
 
 component_service = ComponentService()

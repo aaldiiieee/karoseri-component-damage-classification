@@ -27,13 +27,15 @@ async def lifespan(app: FastAPI):
     logger.info("=" * 50 + "\n")
 
 app = FastAPI(
-    title="Karoseri Component Damage Classification",
+    title="Klasifikasi Tingkat Kerusakan Komponen Produksi Karoseri",
     description = 
-        "A Karoseri Component Damage Classification API for PT. Sukses Tunggal Mandiri using FastAPI \n"
-        "### Features\n"
-        "- **User Management System**: Manage user accounts, roles, and permissions\n"
-        "- **Component Management System**: Manage component accounts, roles, and permissions\n"
-        "- **Damage Classification System**: Manage damage classification accounts, roles, and permissions\n"
+        "API untuk Implementasi Metode Naive Bayes dalam Klasifikasi Tingkat Kerusakan "
+        "Komponen Produksi Karoseri pada PT. Sukses Tunggal Mandiri.\n"
+        "### Fitur Utama\n"
+        "- **Manajemen Pengguna**: Kelola akun pengguna dan hak akses sistem\n"
+        "- **Manajemen Komponen**: Kelola data komponen produksi karoseri\n"
+        "- **Klasifikasi Kerusakan**: Klasifikasi tingkat kerusakan (ringan, sedang, berat) menggunakan Naive Bayes\n"
+        "- **Riwayat Prediksi**: Simpan dan pantau hasil klasifikasi\n"
         "### Timezone\n"
         "All timestamps are in Asia/Jakarta timezone (UTC+7).\n",
     version="1.0.0",
