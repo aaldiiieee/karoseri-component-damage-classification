@@ -3,9 +3,12 @@ from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
+from ..configs.security import get_current_user
 import csv
 import io
-
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from fastapi.responses import StreamingResponse
 from app.configs.db import get_db
 from ..schemas import (
     ComponentCreate,
@@ -23,9 +26,16 @@ router = APIRouter(prefix="/components", tags=["Components"])
 @router.post("/", response_model=ComponentResponse, status_code=201)
 async def create_component(
     data: ComponentCreate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: AsyncSession = Depends(get_current_user)
 ):
     """Create a new component."""
+    if current_user.role not in ["superadmin", "admin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
+        )
+
     # Check if component code already exists
     existing = await component_service.get_by_code(db, data.code)
     if existing:
@@ -45,9 +55,16 @@ async def get_components(
     category: Optional[str] = Query(None, description="Filter by category"),
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
     search: Optional[str] = Query(None, description="Search by code or name"),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: AsyncSession = Depends(get_current_user)
 ):
     """Get all components with pagination and filters."""
+    if current_user.role not in ["superadmin", "admin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
+        )
+
     items, total = await component_service.get_all(
         db, page=page, size=size, category=category, is_active=is_active, search=search
     )
@@ -70,11 +87,13 @@ async def get_categories(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/import-template")
-async def download_component_import_template():
+async def download_component_import_template(current_user: AsyncSession = Depends(get_current_user)):
     """Download an Excel template for bulk importing components."""
-    from openpyxl import Workbook
-    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-    from fastapi.responses import StreamingResponse
+    if current_user.role not in ["superadmin", "admin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
+        )
 
     wb = Workbook()
     ws = wb.active
@@ -126,8 +145,15 @@ async def download_component_import_template():
 @router.post("/bulk-import", response_model=BulkImportResult)
 async def bulk_import_components(
     file: UploadFile = File(..., description="Excel (.xlsx) or CSV file with components"),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: AsyncSession = Depends(get_current_user)
 ):
+    if current_user.role not in ["superadmin", "admin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
+        )
+
     """
     Bulk import components from Excel (.xlsx) or CSV file.
     
@@ -201,9 +227,16 @@ async def bulk_import_components(
 @router.get("/{component_id}", response_model=ComponentResponse)
 async def get_component(
     component_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: AsyncSession = Depends(get_current_user)
 ):
     """Get a component by ID."""
+    if current_user.role not in ["superadmin", "admin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
+        )
+        
     component = await component_service.get_by_id(db, component_id)
     if not component:
         raise HTTPException(status_code=404, detail="Component not found")
@@ -214,9 +247,16 @@ async def get_component(
 async def update_component(
     component_id: UUID,
     data: ComponentUpdate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: AsyncSession = Depends(get_current_user)
 ):
     """Update a component."""
+    if current_user.role not in ["superadmin", "admin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
+        )
+
     # Check if new code already exists (if updating code)
     if data.code:
         existing = await component_service.get_by_code(db, data.code)
@@ -235,9 +275,16 @@ async def update_component(
 @router.delete("/{component_id}", status_code=204)
 async def delete_component(
     component_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: AsyncSession = Depends(get_current_user)
 ):
     """Delete a component."""
+    if current_user.role not in ["superadmin", "admin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
+        )
+        
     deleted = await component_service.delete(db, component_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Component not found")

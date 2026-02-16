@@ -18,3 +18,8 @@ class AuthLoginRequest(AuthBase):
 class AuthLoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class TokenData(BaseModel):
+    username: str
+    role: Optional[str] = None

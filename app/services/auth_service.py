@@ -6,6 +6,7 @@ from app.configs.security import verify_password, create_access_token, create_re
 
 from app.models.users import User
 from app.schemas.auth import AuthLoginResponse, AuthLoginRequest
+from app.models.users import RoleEnum
 
 import logging
 
@@ -44,6 +45,7 @@ class AuthService:
             data = {
                 "user_id": str(user.id),
                 "username": str(user.username),
+                "role": RoleEnum(user.role).value
             }
         )
 

@@ -6,6 +6,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from dotenv import load_dotenv
+from ..schemas.auth import TokenData
 
 load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
@@ -52,13 +53,11 @@ def decode_token(token: str) -> Optional[dict]:
     
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security_scheme)):
-    """Extract user information from the JWT token."""
     try:
-        token = credentials.credentials  # ambil string token-nya
+        token = credentials.credentials
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("username")
-        if username is None:
+        if payload.get("username") is None:
             return None
-        return username
-    except JWTError as e:
+        return TokenData(**payload)
+    except JWTError:
         return None
