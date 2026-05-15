@@ -5,8 +5,7 @@ import uuid
 
 class RoleEnum(enum.Enum):
     superadmin = "superadmin"
-    admin = "admin"
-    user = "user"
+    technician = "technician"
 
 
 class User(Base):
@@ -15,7 +14,7 @@ class User(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username = Column(String, unique=True)
     password = Column(String, nullable=False)
-    role = Column(Enum(RoleEnum, name="user_role"), default=RoleEnum.user, nullable=False)
+    role = Column(Enum(RoleEnum, name="user_role"), default=RoleEnum.technician, nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

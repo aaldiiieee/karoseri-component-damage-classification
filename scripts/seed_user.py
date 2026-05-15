@@ -11,7 +11,7 @@ from app.schemas.user import UserCreate
 
 async def seed():
     async with AsyncSessionLocal() as db:
-        username = "admin"
+        username = "superadmin"
         
         user = await user_service.get_by_username(db, username)
         if user:
@@ -23,7 +23,7 @@ async def seed():
             user_in = UserCreate(
                 username=username,
                 password="password123",
-                role="admin",
+                role="superadmin",
                 is_active=True
             )
             created_user = await user_service.create_user(db, user_in)

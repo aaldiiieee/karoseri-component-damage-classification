@@ -48,19 +48,51 @@ class UserService:
         result = await db.execute(select(User))
         return result.scalars().all()
 
-    async def update_user(self, db: AsyncSession, user_id: UUID, user_in: UserUpdate) -> Optional[User]:
-        result = await db.execute(select(User).where(User.id == user_id))
-        user = result.scalars().first()
+    async def update_user(
+        self,
+        db: AsyncSession,
+        user_id: UUID,
+        user_in: UserUpdate
+    ) -> Optional[User]:
         
+        logger.info(f"Updating user: {user_id}")
+
+        result = await db.execute(
+            select(User).where(User.id == user_id)
+        )
+        user = result.scalars().first()
+
         if not user:
+            logger.warning("User not found")
             return None
-            
+
         update_data = user_in.model_dump(exclude_unset=True)
+
+        # hash password kalau ada password baru
+        if "password" in update_data and update_data["password"]:
+            update_data["password"] = get_password_hash(
+                update_data["password"]
+            )
+
+        # optional: validasi username unique
+        if "username" in update_data:
+            existing_user = await db.execute(
+                select(User).where(
+                    User.username == update_data["username"],
+                    User.id != user_id
+                )
+            )
+
+            if existing_user.scalars().first():
+                logger.warning("Username already exists")
+                raise ValueError("Username already exists")
+
         for key, value in update_data.items():
             setattr(user, key, value)
-            
+
         await db.commit()
         await db.refresh(user)
+
         logger.info("User updated")
         return user
 

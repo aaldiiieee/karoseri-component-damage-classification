@@ -30,7 +30,7 @@ async def create_component(
     current_user: AsyncSession = Depends(get_current_user)
 ):
     """Create a new component."""
-    if current_user.role not in ["superadmin", "admin"]:
+    if current_user.role not in "superadmin":
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
@@ -59,7 +59,7 @@ async def get_components(
     current_user: AsyncSession = Depends(get_current_user)
 ):
     """Get all components with pagination and filters."""
-    if current_user.role not in ["superadmin", "admin"]:
+    if current_user.role not in "superadmin":
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
@@ -89,7 +89,7 @@ async def get_categories(db: AsyncSession = Depends(get_db)):
 @router.get("/import-template")
 async def download_component_import_template(current_user: AsyncSession = Depends(get_current_user)):
     """Download an Excel template for bulk importing components."""
-    if current_user.role not in ["superadmin", "admin"]:
+    if current_user.role not in "superadmin":
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
@@ -148,7 +148,7 @@ async def bulk_import_components(
     db: AsyncSession = Depends(get_db),
     current_user: AsyncSession = Depends(get_current_user)
 ):
-    if current_user.role not in ["superadmin", "admin"]:
+    if current_user.role not in "superadmin":
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
@@ -231,7 +231,7 @@ async def get_component(
     current_user: AsyncSession = Depends(get_current_user)
 ):
     """Get a component by ID."""
-    if current_user.role not in ["superadmin", "admin"]:
+    if current_user.role not in "superadmin":
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
@@ -251,7 +251,7 @@ async def update_component(
     current_user: AsyncSession = Depends(get_current_user)
 ):
     """Update a component."""
-    if current_user.role not in ["superadmin", "admin"]:
+    if current_user.role not in "superadmin":
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
@@ -279,7 +279,7 @@ async def delete_component(
     current_user: AsyncSession = Depends(get_current_user)
 ):
     """Delete a component."""
-    if current_user.role not in ["superadmin", "admin"]:
+    if current_user.role not in "superadmin":
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"

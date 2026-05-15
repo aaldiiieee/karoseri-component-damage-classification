@@ -22,7 +22,17 @@ logger = logging.getLogger("app")
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def create_user(user_in: UserCreate, db: AsyncSession = Depends(get_current_user)):
+async def create_user(
+    user_in: UserCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_user: AsyncSession = Depends(get_current_user)
+):
+    if current_user.role not in "superadmin":
+        raise HTTPException(
+            status_code=403,
+            detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
+        )    
+
     """Create a new user."""
     return await user_service.create_user(db, user_in)
 
