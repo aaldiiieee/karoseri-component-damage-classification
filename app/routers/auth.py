@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.configs.security import get_current_user
-from ..schemas.auth import AuthLoginRequest, AuthLoginResponse
+from ..schemas.auth import AuthLoginRequest, AuthLoginResponse, TokenData
 from ..services.auth_service import auth_service
 from ..configs.db import get_db
 import logging
@@ -30,6 +30,6 @@ async def login(auth_data: AuthLoginRequest, db: AsyncSession = Depends(get_db))
 
 
 @router.get("/protected", status_code=status.HTTP_200_OK)
-async def protected_route(username: str = Depends(get_current_user)):
+async def protected_route(current_user: TokenData = Depends(get_current_user)):
     """A protected route that requires authentication."""
-    return {"message": f"Hello, {username}. You have accessed a protected route."}
+    return {"message": f"Hello, {current_user.username}. You have accessed a protected route."}

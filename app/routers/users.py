@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..schemas.user import UserCreate, UserUpdate, UserResponse
+from ..schemas.auth import TokenData
 from ..services.user_service import user_service
 from ..configs.db import get_db
 from ..configs.security import get_current_user
@@ -23,17 +24,16 @@ logger = logging.getLogger("app")
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
-    user_in: UserCreate, 
+    user_in: UserCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: AsyncSession = Depends(get_current_user)
+    current_user: TokenData = Depends(get_current_user)
 ):
-    if current_user.role not in "superadmin":
+    """Create a new user."""
+    if current_user.role not in ["superadmin"]:
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
-        )    
-
-    """Create a new user."""
+        )
     return await user_service.create_user(db, user_in)
 
 
@@ -44,12 +44,8 @@ async def read_users(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/me", response_model=UserResponse)
-async def read_user_me(db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+async def read_user_me(db: AsyncSession = Depends(get_db), current_user: TokenData = Depends(get_current_user)):
     """Get current user."""
-    print("current_user", current_user)
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Could not validate credentials")
-    
     user = await user_service.get_by_username(db, current_user.username)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
