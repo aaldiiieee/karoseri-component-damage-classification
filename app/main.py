@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, HTTPException
+import os
 import time
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import router
@@ -6,8 +7,10 @@ from .configs.swagger_config import swagger_config
 from .configs.logging import setup_logging
 from .configs.logging_middleware import LoggingMiddleware
 from .configs.auth_middleware import AuthMiddleware
-from .configs.cors_config import CORS_CONFIG
+from .configs.cors_config import CORS_CONFIG, CORS_ORIGINS
 from fastapi.concurrency import asynccontextmanager
+
+REQUIRED_ENV_VARS = ["SECRET_KEY", "DATABASE_URL"]
 
 # Setup lifespan
 @asynccontextmanager
@@ -17,10 +20,16 @@ async def lifespan(app: FastAPI):
     logger = setup_logging(log_level="INFO")
     logger.info("=" * 50)
     logger.info("Application starting up...")
+
+    missing = [v for v in REQUIRED_ENV_VARS if not os.getenv(v)]
+    if missing:
+        raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
+
+    logger.info(f"CORS allowed origins: {CORS_ORIGINS}")
     logger.info("=" * 50 + "\n")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("=" * 50)
     logger.info("Application shutting down...")
