@@ -22,7 +22,7 @@ logger = logging.getLogger("app")
 router = APIRouter(prefix="/damage-records", tags=["Damage Records"])
 
 
-@router.post("/", response_model=DamageRecordResponse, status_code=201)
+@router.post("", response_model=DamageRecordResponse, status_code=201)
 async def create_damage_record(
     data: DamageRecordCreate,
     db: AsyncSession = Depends(get_db)
@@ -37,7 +37,7 @@ async def create_damage_record(
     return record
 
 
-@router.get("/", response_model=DamageRecordList)
+@router.get("", response_model=DamageRecordList)
 async def get_damage_records(
     page: int = Query(1, ge=1, description="Page number"),
     size: int = Query(10, ge=1, le=100, description="Items per page"),

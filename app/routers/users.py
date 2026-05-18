@@ -22,7 +22,7 @@ router = APIRouter(
 logger = logging.getLogger("app")
 
 
-@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
     user_in: UserCreate,
     db: AsyncSession = Depends(get_db),
@@ -37,7 +37,7 @@ async def create_user(
     return await user_service.create_user(db, user_in)
 
 
-@router.get("/", response_model=List[UserResponse])
+@router.get("", response_model=List[UserResponse])
 async def read_users(db: AsyncSession = Depends(get_db)):
     """Read all users."""
     return await user_service.get_users(db)
