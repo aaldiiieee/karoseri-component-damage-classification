@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from passlib.context import CryptContext
@@ -52,12 +52,18 @@ def decode_token(token: str) -> Optional[dict]:
         return None
     
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security_scheme)):
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security_scheme)) -> TokenData:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
         token = credentials.credentials
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        if payload.get("username") is None:
-            return None
-        return TokenData(**payload)
+        username: str = payload.get("username")
+        if username is None:
+            raise credentials_exception
+        return TokenData(username=username, role=payload.get("role"))
     except JWTError:
-        return None
+        raise credentials_exception

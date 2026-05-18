@@ -41,6 +41,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
             )
 
         # Simpan user info ke request.state supaya bisa diakses di endpoint
-        request.state.user = payload.get("sub")
+        request.state.user = payload.get("username")
 
         return await call_next(request)

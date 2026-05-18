@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..configs.security import get_current_user
+from ..schemas.auth import TokenData
 import csv
 import io
 from openpyxl import Workbook
@@ -27,10 +28,10 @@ router = APIRouter(prefix="/components", tags=["Components"])
 async def create_component(
     data: ComponentCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: AsyncSession = Depends(get_current_user)
+    current_user: TokenData = Depends(get_current_user)
 ):
     """Create a new component."""
-    if current_user.role not in "superadmin":
+    if current_user.role not in ["superadmin"]:
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
@@ -56,10 +57,10 @@ async def get_components(
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
     search: Optional[str] = Query(None, description="Search by code or name"),
     db: AsyncSession = Depends(get_db),
-    current_user: AsyncSession = Depends(get_current_user)
+    current_user: TokenData = Depends(get_current_user)
 ):
     """Get all components with pagination and filters."""
-    if current_user.role not in "superadmin":
+    if current_user.role not in ["superadmin"]:
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
@@ -89,7 +90,7 @@ async def get_categories(db: AsyncSession = Depends(get_db)):
 @router.get("/import-template")
 async def download_component_import_template(current_user: AsyncSession = Depends(get_current_user)):
     """Download an Excel template for bulk importing components."""
-    if current_user.role not in "superadmin":
+    if current_user.role not in ["superadmin"]:
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
@@ -146,9 +147,9 @@ async def download_component_import_template(current_user: AsyncSession = Depend
 async def bulk_import_components(
     file: UploadFile = File(..., description="Excel (.xlsx) or CSV file with components"),
     db: AsyncSession = Depends(get_db),
-    current_user: AsyncSession = Depends(get_current_user)
+    current_user: TokenData = Depends(get_current_user)
 ):
-    if current_user.role not in "superadmin":
+    if current_user.role not in ["superadmin"]:
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
@@ -228,10 +229,10 @@ async def bulk_import_components(
 async def get_component(
     component_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: AsyncSession = Depends(get_current_user)
+    current_user: TokenData = Depends(get_current_user)
 ):
     """Get a component by ID."""
-    if current_user.role not in "superadmin":
+    if current_user.role not in ["superadmin"]:
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
@@ -248,10 +249,10 @@ async def update_component(
     component_id: UUID,
     data: ComponentUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: AsyncSession = Depends(get_current_user)
+    current_user: TokenData = Depends(get_current_user)
 ):
     """Update a component."""
-    if current_user.role not in "superadmin":
+    if current_user.role not in ["superadmin"]:
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
@@ -276,10 +277,10 @@ async def update_component(
 async def delete_component(
     component_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: AsyncSession = Depends(get_current_user)
+    current_user: TokenData = Depends(get_current_user)
 ):
     """Delete a component."""
-    if current_user.role not in "superadmin":
+    if current_user.role not in ["superadmin"]:
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"
