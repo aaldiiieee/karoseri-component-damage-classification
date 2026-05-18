@@ -24,7 +24,7 @@ logger = logging.getLogger("app")
 
 router = APIRouter(prefix="/components", tags=["Components"])
 
-@router.post("/", response_model=ComponentResponse, status_code=201)
+@router.post("", response_model=ComponentResponse, status_code=201)
 async def create_component(
     data: ComponentCreate,
     db: AsyncSession = Depends(get_db),
@@ -49,7 +49,7 @@ async def create_component(
     return component
 
 
-@router.get("/", response_model=ComponentList)
+@router.get("", response_model=ComponentList)
 async def get_components(
     page: int = Query(1, ge=1, description="Page number"),
     size: int = Query(10, ge=1, le=100, description="Items per page"),
