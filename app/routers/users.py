@@ -29,7 +29,7 @@ async def create_user(
     current_user: TokenData = Depends(get_current_user)
 ):
     """Create a new user."""
-    if current_user.role not in ["superadmin"]:
+    if current_user.role != "admin":
         raise HTTPException(
             status_code=403,
             detail="Anda tidak memiliki hak akses untuk mengakses resource ini"

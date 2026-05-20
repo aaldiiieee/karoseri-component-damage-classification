@@ -23,7 +23,7 @@ async def seed():
             user_in = UserCreate(
                 username=username,
                 password="password123",
-                role="superadmin",
+                role="admin",
                 is_active=True
             )
             created_user = await user_service.create_user(db, user_in)

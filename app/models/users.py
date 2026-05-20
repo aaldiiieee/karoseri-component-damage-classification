@@ -4,7 +4,7 @@ import enum
 import uuid
 
 class RoleEnum(enum.Enum):
-    superadmin = "superadmin"
+    admin = "admin"
     technician = "technician"
 
 
